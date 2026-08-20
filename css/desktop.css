@@ -1,0 +1,771 @@
+/* twm desktop: icons, gadgets, taskbar, intranet */
+
+#screen-desktop { position: relative; }
+
+/* ---- icons ---- */
+.twm-icons {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2;
+}
+.twm-icon {
+  width: 96px;
+  background: var(--x-face);
+  box-shadow: 1px 1px 0 #000;
+  cursor: pointer;
+}
+.twm-icon:hover, .twm-icon:focus { outline: 1px dotted #000; outline-offset: 2px; }
+.twm-icon:hover .twm-icon-title,
+.twm-icon:focus .twm-icon-title {
+  background: var(--x-gold);
+  color: #000;
+}
+.twm-icon:active { box-shadow: none; }
+.twm-icon-title {
+  background: var(--x-title);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  padding: 3px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+.twm-icon-face {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #b8b4a8;
+  box-shadow: inset 1px 1px 0 var(--x-lo), inset -1px -1px 0 var(--x-hi);
+}
+
+.xbm, .xbm-doc, .xbm-book, .xbm-note, .xbm-radio, .xbm-ns, .xbm-clock, .xbm-con, .xbm-term, .xbm-gear {
+  border: 2px solid #000;
+  position: relative;
+}
+.xbm {
+  width: 28px; height: 32px;
+  background: #e8d898;
+  box-shadow: inset 3px 6px 0 -1px #000, inset 3px 12px 0 -1px #000, inset 3px 18px 0 -1px #000, inset 3px 24px 0 -1px #600;
+}
+.xbm::after {
+  content: "";
+  position: absolute;
+  right: -5px; top: 4px;
+  width: 8px; height: 10px;
+  background: #fff;
+  border: 2px solid #000;
+}
+.xbm-doc {
+  width: 22px; height: 28px;
+  background: var(--x-paper);
+  box-shadow: inset 3px 7px 0 -1px #000, inset 3px 13px 0 -1px #000, inset 3px 19px 0 -1px #000;
+}
+.xbm-doc::before {
+  content: "";
+  position: absolute;
+  top: -2px; right: -2px;
+  border: 5px solid transparent;
+  border-top-color: var(--x-desk);
+  border-right-color: var(--x-desk);
+}
+.xbm-book {
+  width: 28px; height: 22px;
+  background: #f4e4b0;
+  border-left: 6px solid #600;
+  box-shadow: inset 4px 5px 0 -2px #000, inset 4px 11px 0 -2px #000;
+}
+.xbm-note {
+  width: 22px; height: 26px;
+  background: #ffe866;
+  box-shadow: inset 3px 8px 0 -1px #aa0, inset 3px 14px 0 -1px #aa0, inset 3px 20px 0 -1px #aa0;
+}
+.xbm-radio {
+  width: 28px; height: 16px;
+  background: #ddd;
+  box-shadow: inset 4px 4px 0 0 #000;
+}
+.xbm-radio::before {
+  content: "";
+  position: absolute;
+  left: 12px; top: -11px;
+  width: 2px; height: 12px;
+  background: #000;
+}
+.xbm-radio::after {
+  content: "";
+  position: absolute;
+  left: 9px; top: -14px;
+  width: 8px; height: 6px;
+  border: 2px solid #000;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+.xbm-gear {
+  width: 20px; height: 20px;
+  border-width: 3px;
+  border-radius: 50%;
+  background: #c8c8c8;
+  box-shadow: 0 -8px 0 -5px #000, 0 8px 0 -5px #000, -8px 0 0 -5px #000, 8px 0 0 -5px #000;
+}
+.xbm-clock {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #f4f0d8;
+  box-shadow: inset 0 0 0 2px #888;
+}
+.xbm-clock::before, .xbm-clock::after {
+  content: "";
+  position: absolute;
+  background: #000;
+  left: 11px;
+}
+.xbm-clock::before { top: 4px; width: 2px; height: 8px; }
+.xbm-clock::after { top: 11px; width: 7px; height: 2px; }
+.xbm-term {
+  width: 28px;
+  height: 20px;
+  background: #111;
+  box-shadow: inset 4px 8px 0 0 #3c3, inset 8px 8px 0 0 #3c3, inset 4px 14px 0 0 #3c3;
+}
+.xbm-term::after {
+  content: "";
+  position: absolute;
+  right: 5px; bottom: 4px;
+  width: 5px; height: 2px;
+  background: #3c3;
+}
+.xbm-con {
+  width: 28px;
+  height: 18px;
+  background: #d8d4c8;
+  box-shadow: inset 3px 4px 0 #000, inset 3px 8px 0 #000, inset 3px 12px 0 #666;
+}
+.xbm-ns {
+  width: 28px; height: 28px;
+  background: #fff;
+  box-shadow: inset -11px -11px 0 #c44, inset 9px 9px 0 #246;
+}
+.xbm-ns::after {
+  content: "";
+  position: absolute;
+  left: 10px; top: 10px;
+  width: 6px; height: 6px;
+  background: #000;
+}
+
+/* ---- gadgets ---- */
+.x-gadget {
+  position: absolute;
+  z-index: 3;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+.x-gadget.x-sized { overflow: hidden; }
+.x-gadget.iconified,
+.x-gadget.withdrawn,
+#win-xterm.iconified,
+#win-xterm.withdrawn,
+#win-timeclock.iconified,
+#win-timeclock.withdrawn,
+#win-virt.iconified,
+#win-virt.withdrawn,
+#win-xconsole.iconified,
+#win-xconsole.withdrawn,
+#win-case.iconified, #win-case.withdrawn,
+#win-notes.iconified, #win-notes.withdrawn,
+#win-radio.iconified, #win-radio.withdrawn,
+#win-manual.iconified, #win-manual.withdrawn,
+#win-prefs.iconified, #win-prefs.withdrawn,
+#win-brief,
+#win-brief.iconified { display: none; }
+.x-gadget.x-max {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.x-rsz { position: absolute; z-index: 6; }
+.x-rsz-n { top: 0; left: 8px; right: 8px; height: 5px; cursor: ns-resize; }
+.x-rsz-s { bottom: 0; left: 8px; right: 8px; height: 5px; cursor: ns-resize; }
+.x-rsz-e { right: 0; top: 8px; bottom: 8px; width: 5px; cursor: ew-resize; }
+.x-rsz-w { left: 0; top: 8px; bottom: 8px; width: 5px; cursor: ew-resize; }
+.x-rsz-ne { top: 0; right: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+.x-rsz-nw { top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+.x-rsz-se { bottom: 0; right: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+.x-rsz-sw { bottom: 0; left: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+
+#win-xclock { width: 176px; }
+.xclock-body { padding: 6px; }
+.xclock-face { display: block; width: 100%; height: auto; }
+
+#win-xeyes { width: 156px; }
+.xeyes { display: flex; justify-content: center; gap: 6px; padding: 8px 10px 10px; }
+.eye {
+  width: 52px; height: 64px;
+  background: #fffef8;
+  border: 2px solid #000;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+.pupil {
+  width: 14px; height: 14px;
+  background: #102;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%; top: 50%;
+  margin: -7px 0 0 -7px;
+}
+
+#win-xload { width: 176px; }
+.xload-body {
+  height: 68px;
+  margin: 3px;
+  background: #000;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 1px;
+}
+.xload-bar { flex: 1; background: #3c3; min-height: 2px; }
+
+#win-status { width: 200px; }
+.status-body {
+  padding: 6px 8px 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+#desktop-clock {
+  margin-top: 4px;
+  padding: 3px 4px;
+  background: #102410;
+  color: #6f6;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 5px #1a1;
+}
+
+#win-xmessage {
+  width: min(540px, 82vw);
+  z-index: 4;
+  font-family: Tahoma, "MS Sans Serif", Helvetica, Arial, sans-serif;
+}
+.mail-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 3px 4px;
+  background: var(--x-face);
+  border-bottom: 1px solid var(--x-lo);
+}
+.mail-toolbar .btn { padding: 1px 7px; font-size: 11px; }
+.mail-split { display: flex; background: var(--x-face); }
+.mail-folders {
+  width: 78px;
+  flex: 0 0 78px;
+  padding: 4px 3px;
+  border-right: 2px inset #fff;
+  font-size: 11px;
+}
+.mail-folder {
+  padding: 3px 4px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mail-folder::before {
+  content: "";
+  width: 11px; height: 8px;
+  background: #fc0;
+  border: 1px solid #000;
+  box-shadow: 0 -2px 0 -1px #da0;
+  flex: 0 0 11px;
+}
+.mail-folder.on { background: var(--x-title); color: #fff; font-weight: bold; }
+.mail-folder.on::before { background: var(--x-gold); }
+.mail-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.mail-list {
+  max-height: 140px;
+  overflow-y: auto;
+  background: var(--x-paper);
+  border-bottom: 2px inset #fff;
+  font-size: 11px;
+}
+.mail-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 78px;
+  gap: 4px;
+  padding: 2px 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mail-row span { overflow: hidden; text-overflow: ellipsis; }
+.mail-row:hover { background: #e4e0c8; }
+.mail-row.on { background: var(--x-title); color: #fff; }
+.mail-cols {
+  background: #d4d0c4;
+  font-weight: bold;
+  border-bottom: 1px solid #808080;
+  cursor: default;
+}
+.mail-cols span { cursor: pointer; }
+.mail-cols span:hover { background: #c8c4b8; }
+.mail-read {
+  padding: 6px 8px 8px;
+  background: var(--x-paper);
+  min-height: 110px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.mail-head { color: #333; font-size: 11px; margin-bottom: 6px; }
+.mail-head div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xmessage-body p { margin-bottom: 0.45rem; }
+.xmessage-body .btn { display: inline-block; margin: 6px 0 0; font-size: 11px; }
+
+#win-xconsole {
+  display: flex;
+  flex-direction: column;
+  width: clamp(360px, 48vw, 640px);
+  z-index: 6;
+  box-shadow: 3px 3px 0 #000;
+}
+.xconsole-log {
+  margin: 3px;
+  min-height: 120px;
+  height: 160px;
+  overflow: auto;
+  background: #000;
+  color: #c8c8c8;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 6px;
+  white-space: pre-wrap;
+  user-select: text;
+}
+.xconsole-log .err { color: #ff6666; }
+
+#win-xterm {
+  display: flex;
+  flex-direction: column;
+  top: 12px;
+  left: calc(112px + clamp(360px, 32vw, 560px) + 12px);
+  width: min(900px, calc(100vw - 112px - clamp(360px, 32vw, 560px) - 12px - 196px));
+  height: min(620px, calc(100vh - 56px));
+  min-width: 360px;
+  min-height: 240px;
+  z-index: 7;
+  background: var(--term-bg);
+}
+#win-xterm.x-sized .term-screen { min-height: 0; }
+#win-xterm .term-screen { flex: 1; min-height: 0; }
+#win-xterm .xwin-title { flex-shrink: 0; }
+
+#win-timeclock, #win-virt, #win-case, #win-notes, #win-radio, #win-manual, #win-prefs {
+  display: flex;
+  flex-direction: column;
+  box-shadow: 3px 3px 0 #000;
+}
+#win-case { width: clamp(360px, 36vw, 540px); z-index: 8; }
+#win-notes, #win-radio, #win-prefs { width: clamp(300px, 30vw, 420px); z-index: 8; }
+#win-manual { width: clamp(480px, 46vw, 680px); z-index: 8; }
+.app-body {
+  padding: 10px 12px 12px;
+  background: var(--x-paper);
+  max-height: min(480px, 58vh);
+  overflow: auto;
+  font-size: 13px;
+}
+#win-timeclock {
+  width: clamp(360px, 32vw, 520px);
+  z-index: 11;
+  font-family: Tahoma, "MS Sans Serif", Helvetica, Arial, sans-serif;
+}
+#win-virt {
+  top: 48px;
+  left: 112px;
+  width: clamp(560px, 54vw, 840px);
+  height: min(540px, calc(100vh - 72px));
+  min-height: 320px;
+  z-index: 9;
+}
+
+.clock-chrome { flex: 0 0 auto; background: #202020; border-bottom: 1px solid #000; }
+.clock-banner, .virt-banner, .tkt-banner, .vc-banner, .tkt-updated {
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.clock-banner {
+  background: #030;
+  color: #9f6;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 4px 8px;
+}
+.clock-led {
+  background: #000;
+  color: #3f3;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 22px;
+  letter-spacing: 0.14em;
+  padding: 8px 10px 10px;
+  text-shadow: 0 0 6px #1a1;
+}
+.clock-body {
+  background: #d8d4c8;
+  color: #000;
+  padding: 8px 10px 10px;
+  font-size: 12px;
+  max-height: min(420px, 56vh);
+  overflow: auto;
+}
+.clock-body h2 { margin: 4px 0 8px; font-size: 16px; }
+.clock-meta { color: #333; font-size: 11px; margin-bottom: 6px; }
+
+.virt-chrome {
+  flex: 0 0 auto;
+  background: var(--x-face);
+  border-bottom: 1px solid var(--x-lo);
+  padding: 3px 6px 5px;
+}
+.virt-menubar { font-size: 11px; color: #111; margin-bottom: 3px; }
+.virt-loc { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.virt-bookmarks { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+.virt-bookmarks button {
+  background: var(--x-face);
+  border-top: 1px solid var(--x-hi);
+  border-left: 1px solid var(--x-hi);
+  border-right: 1px solid var(--x-lo);
+  border-bottom: 1px solid var(--x-lo);
+  font-size: 10px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.virt-bookmarks button:hover { background: #e4e0d0; }
+.virt-bookmarks button:active {
+  border-color: var(--x-lo) var(--x-hi) var(--x-hi) var(--x-lo);
+}
+#virt-url, #virt-size {
+  background: var(--x-paper);
+  color: #000;
+  border: 2px inset #fff;
+  font-family: "Courier New", Courier, monospace;
+  padding: 1px 4px;
+}
+#virt-url { flex: 1; min-width: 0; font-size: 11px; }
+#virt-size { width: 64px; font-size: 12px; }
+.virt-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #d8d4c8;
+  color: #000;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  padding: 0;
+  overflow: hidden;
+}
+.virt-split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+}
+.virt-tree {
+  width: 168px;
+  flex: 0 0 168px;
+  overflow: auto;
+  background: #c8c4b8;
+  border-right: 1px solid #000;
+  font-size: 12px;
+}
+.virt-tree-head {
+  background: var(--x-title);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 3px 6px;
+}
+.virt-node {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 3px 6px;
+  cursor: pointer;
+  font: inherit;
+}
+.virt-node:hover { background: #d8d4c8; }
+.virt-node.on { background: var(--x-gold); }
+.virt-node.d1 { padding-left: 16px; }
+.virt-node.d2 { padding-left: 30px; }
+.virt-node-meta { font-size: 10px; color: #444; }
+.virt-detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  background: var(--x-paper);
+}
+.virt-banner { background: var(--x-title); color: #fff; }
+.virt-panel { padding: 8px 10px 12px; background: var(--x-paper); }
+.virt-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.virt-run { color: #060; font-weight: bold; }
+.virt-blurb { margin: 0 0 8px; line-height: 1.35; }
+.virt-disk { margin-bottom: 7px; }
+.virt-disk-meta { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.virt-bar { height: 12px; background: #e8e8e8; border: 1px solid #000; }
+.virt-bar i { display: block; height: 100%; background: #06c; }
+.virt-bar.ok i { background: #282; }
+.virt-bar.hot i { background: #c00; }
+.virt-form {
+  margin: 10px 0 8px;
+  padding: 8px;
+  background: #ece9d8;
+  border: 2px inset #fff;
+}
+.virt-form-title { font-weight: bold; margin-bottom: 6px; }
+.virt-field { display: flex; align-items: center; gap: 6px; }
+#virt-unit { font-size: 12px; }
+.virt-form-hint { margin: 6px 0 0; font-size: 11px; color: #333; line-height: 1.3; }
+.virt-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.virt-actions .btn[disabled] { opacity: 0.65; }
+.virt-empty { padding: 10px; }
+
+.tkt-banner, .tkt-updated { background: #600; color: #ffc; }
+.vc-banner { background: #036; color: #fff; }
+.tkt-sub, .vc-path, .tkt-foot { padding: 4px 8px; font-size: 11px; background: #ece9d8; }
+.tkt-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 6px 8px 0;
+  background: var(--x-face);
+  border-bottom: 1px solid #808080;
+}
+.tkt-tab {
+  display: inline-block;
+  padding: 3px 11px 5px;
+  color: #000;
+  text-decoration: none;
+  background: #d4d0c8;
+  border: 1px solid #808080;
+  border-bottom: 0;
+  font-size: 11px;
+}
+.tkt-tab:hover { background: #eee8d4; }
+.tkt-tab.on {
+  background: var(--x-paper);
+  font-weight: bold;
+  position: relative;
+  top: 1px;
+  padding-bottom: 6px;
+}
+.tkt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--x-paper);
+  font-size: 11px;
+}
+.tkt-table th, .tkt-table td { border: 1px solid #808080; padding: 3px 6px; text-align: left; }
+.tkt-table th { background: #d4d0c4; }
+.tkt-table tr.tkt-open { cursor: pointer; color: #06c; }
+.tkt-table tr.tkt-inprog { cursor: pointer; background: #ffe680; }
+.tkt-table tr.tkt-closed, .tkt-table tr.tkt-wait { color: #666; cursor: pointer; }
+.tkt-table tr.tkt-open:hover, .tkt-table tr.tkt-inprog:hover { background: #fff3b0; }
+.tkt-detail { padding: 8px 10px; background: var(--x-paper); font-size: 12px; }
+.tkt-detail h3 { margin: 6px 0; font-size: 14px; }
+.tkt-meta { color: #444; font-size: 11px; }
+.tkt-note { color: #600; }
+.tkt-closeout { margin-top: 8px; }
+.tkt-updated { letter-spacing: 0.12em; margin-bottom: 8px; }
+.tkt-actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.tkt-help {
+  background: #111;
+  color: #cfc;
+  padding: 6px 8px;
+  font-size: 11px;
+  white-space: pre-wrap;
+  margin: 8px 0 0;
+}
+.tkt-hints {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: #ffc;
+  border: 1px solid #880;
+  font-size: 11px;
+}
+.tkt-hints div { margin-bottom: 3px; }
+.tkt-detail .objective { margin: 8px 0; }
+.tkt-foot { font-size: 10px; color: #444; }
+.tkt-foot .btn { margin-left: 8px; font-size: 10px; padding: 1px 7px; }
+
+/* ---- taskbar ---- */
+.taskbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 32px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 4px;
+  background: var(--x-face);
+  border-top: 2px solid var(--x-hi);
+  box-shadow: 0 -1px 0 #000;
+}
+.taskbar[hidden] { display: none; }
+body.has-taskbar #screen-desktop,
+body.has-taskbar .overlay { bottom: 30px; }
+
+.task-start, .task-pager, .task-btn, .task-mail {
+  font-family: Helvetica, Arial, sans-serif;
+  color: #000;
+  background: var(--x-face);
+  cursor: pointer;
+}
+.task-start {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px 0 3px;
+  font-size: 12px;
+  font-weight: bold;
+  flex: 0 0 auto;
+}
+.task-x {
+  width: 14px; height: 14px;
+  background: var(--x-title);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-pager {
+  width: 18px; height: 22px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: bold;
+  background: #a8a8a8;
+  flex: 0 0 auto;
+}
+.task-list {
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  height: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.task-list::-webkit-scrollbar { display: none; }
+.task-btn {
+  flex: 1 1 88px;
+  max-width: 156px;
+  min-width: 70px;
+  height: 24px;
+  padding: 0 7px 0 5px;
+  font-size: 11px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: inset 1px 1px 0 #e8e8e8;
+}
+.task-btn:hover { background: #d8d4c8; }
+.task-btn.active {
+  background: #9aa8b8;
+  font-weight: bold;
+  box-shadow: inset 2px 0 0 var(--x-title);
+}
+.task-btn.iconified { font-style: italic; color: #333; }
+.task-tray {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 6px;
+  flex: 0 0 auto;
+  background: var(--x-face);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+}
+.task-mail { border: 0; padding: 0; font: 11px "Courier New", Courier, monospace; background: transparent; }
+.task-mail.alert {
+  color: var(--accent);
+  font-weight: bold;
+  animation: mailhop 0.9s steps(2) infinite;
+}
+@keyframes mailhop { 50% { transform: translateY(-1px); } }
+.task-tray-clock { min-width: 72px; text-align: right; }
+
+/* ---- twm menu ---- */
+.root-menu {
+  position: fixed;
+  z-index: 80;
+  min-width: 168px;
+  background: var(--x-face);
+  box-shadow: 2px 2px 0 #000;
+  padding: 2px;
+}
+.root-menu[hidden] { display: none; }
+.root-menu-title {
+  background: var(--x-title);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 6px;
+  margin-bottom: 2px;
+}
+.root-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 4px 10px;
+  font: 12px Helvetica, Arial, sans-serif;
+  cursor: pointer;
+}
+.root-menu button:hover { background: var(--x-title); color: #fff; }
+.root-menu hr {
+  border: 0;
+  border-top: 1px solid var(--x-lo);
+  border-bottom: 1px solid var(--x-hi);
+  margin: 3px 4px;
+}
+
+@media (max-width: 820px) {
+  #win-xload, #win-xeyes { display: none; }
+  #win-xclock { width: 112px; }
+  #win-xconsole { left: 10px; right: 10px; }
+  .task-btn { min-width: 56px; max-width: 110px; padding: 0 4px; }
+  .task-start { padding-right: 5px; font-size: 11px; }
+  #win-status { left: 108px; width: 140px; }
+  #win-xmessage { left: 108px; top: 150px; width: calc(100vw - 130px); }
+  #win-timeclock { left: 8px; width: calc(100vw - 16px); }
+}

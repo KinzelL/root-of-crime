@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROOT OF CRIME</title>
+  <meta name="description" content="A Linux terminal mystery. You are IT at Precinct 13. Find the root of the crime.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="crt">
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div id="toast" class="toast" role="status"></div>
+
+  <!-- TITLE / xdm -->
+  <div id="screen-title" class="screen active x-root">
+    <div class="xwin xdm-box">
+      <div class="xwin-title">
+        <span class="xwin-menu" aria-hidden="true"></span>
+        <span class="xwin-name">xdm — precinct-13:0</span>
+        <span class="xwin-btns"><span class="xwin-dot"></span></span>
+      </div>
+      <div class="xwin-body xdm-body">
+        <div class="xdm-host">X Window System  ·  X11R6</div>
+        <pre class="wordmark" aria-hidden="true">ROOT
+ OF
+CRIME</pre>
+        <h1 class="sr-only">Root of Crime</h1>
+        <div class="sub" id="xdm-sub">login: itguy@precinct-13</div>
+        <p class="flavor" id="xdm-flavor">
+          Someone rooted the precinct. The printer is screaming.
+          The evidence locker is mode 000. The coffee machine has a login.
+          You have the terminal. Find the root of the crime.
+        </p>
+        <button class="btn" id="xdm-login" onclick="Game.start()">Log In</button>
+        <div class="title-foot">twm + xterm · four chapters · no display manager worth keeping</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOT -->
+  <div id="screen-boot" class="screen">
+    <pre id="boot-log" class="boot-log"></pre>
+  </div>
+
+  <!-- DESKTOP — twm root -->
+  <!-- Desktop clients: register in Game.WINDOWS. Each gets min / max / restore / close. -->
+  <div id="screen-desktop" class="screen x-root">
+    <div class="x-watermark" aria-hidden="true">root@precinct-13&nbsp;&nbsp;twm&nbsp;&nbsp;X11R6</div>
+
+    <div class="twm-icons" id="desktop-icons"></div>
+
+    <div class="xwin x-gadget x-drag" id="win-xclock" style="top:16px;right:18px;left:auto;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xclock</span>
+        <span class="xwin-btns"><span class="xwin-dot"></span></span>
+      </div>
+      <div class="xwin-body xclock-body">
+        <svg class="xclock-face" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="47" fill="#d8d8d8" stroke="#000" stroke-width="2"/>
+          <g id="xclock-ticks"></g>
+          <line id="hand-h" x1="50" y1="50" x2="50" y2="28" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>
+          <line id="hand-m" x1="50" y1="50" x2="50" y2="16" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+          <line id="hand-s" x1="50" y1="50" x2="50" y2="13" stroke="#a00000" stroke-width="1"/>
+          <circle cx="50" cy="50" r="2.2" fill="#000"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="xwin x-gadget x-drag" id="win-xeyes" style="top:196px;right:28px;left:auto;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xeyes</span>
+        <span class="xwin-btns"><span class="xwin-dot"></span></span>
+      </div>
+      <div class="xwin-body xeyes">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+    </div>
+
+    <div class="xwin x-gadget x-drag" id="win-xload" style="top:330px;right:18px;left:auto;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xload</span>
+        <span class="xwin-btns"><span class="xwin-dot"></span></span>
+      </div>
+      <div class="xwin-body xload-body" id="xload-bars"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag" id="win-status" style="top:16px;left:118px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xbiff</span>
+        <span class="xwin-btns"><span class="xwin-dot"></span></span>
+      </div>
+      <div class="xwin-body status-body">
+        <div>root@precinct-13</div>
+        <div id="rank-text">RECRUIT</div>
+        <div id="score-text">SCORE 0</div>
+        <div id="progress-text">CASES 0/15</div>
+        <div id="desktop-clock">--:--</div>
+      </div>
+    </div>
+
+    <div class="xwin x-gadget x-drag" id="win-xmessage" style="top:38%;left:24%;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="mail-title">netmoth — Mail</span>
+        <button type="button" class="xwin-iconify" title="iconify" onclick="Game.iconifyClient('win-xmessage')">.</button>
+        <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-xmessage')">X</button>
+      </div>
+      <div class="mail-toolbar">
+        <button type="button" class="btn" onclick="Game.mailGet()">Get Msg</button>
+        <button type="button" class="btn" onclick="Game.mailPrev()">Prev</button>
+        <button type="button" class="btn" onclick="Game.mailNext()">Next</button>
+        <button type="button" class="btn" onclick="Game.openAppHelp('mail')">Help</button>
+      </div>
+      <div class="mail-split">
+        <div class="mail-folders">
+          <div class="mail-folder on">Inbox</div>
+          <div class="mail-folder">Drafts</div>
+          <div class="mail-folder">Sent</div>
+          <div class="mail-folder">Trash</div>
+        </div>
+        <div class="mail-main">
+          <div class="mail-list" id="mail-list"></div>
+          <div class="mail-read xmessage-body" id="mail-read"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-xconsole" style="top:280px;left:118px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xconsole — /dev/console</span>
+      </div>
+      <pre class="xwin-body xconsole-log" id="xconsole-log"></pre>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-brief">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="mission-title-bar">xmessage — CASE SLIP</span>
+        <button type="button" class="xwin-iconify" title="iconify" onclick="Game.iconifyClient('win-brief')">.</button>
+        <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-brief')">X</button>
+      </div>
+      <div class="xwin-body brief-body">
+        <div class="brief-meta">
+          <span class="tag" id="mission-tag">TASK</span>
+          <span class="brief-stamp" id="mission-stamp">CH 00</span>
+        </div>
+        <h2 id="mission-name">Loading...</h2>
+        <p id="mission-desc"></p>
+        <div class="objective">
+          <div class="objective-kicker">TRACKER <span id="mission-track-count">0/0</span></div>
+          <ul class="tracker" id="mission-tracker"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="xwin terminal x-gadget x-drag x-client iconified withdrawn" id="win-xterm">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="xterm-title">xterm — itguy@closet</span>
+        <span class="term-hint">Tab · hint · right-click copy/paste · Esc=iconify</span>
+        <button type="button" class="xwin-iconify" title="iconify" onclick="Game.iconifyClient('win-xterm')">.</button>
+        <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-xterm')">X</button>
+      </div>
+      <div class="term-screen" id="term-screen">
+        <div class="term-output" id="term-output"></div>
+        <div class="term-live" id="term-live">
+          <span class="term-prompt">itguy@closet:~$</span><input type="text" id="termInput" autocomplete="off" spellcheck="false" autocapitalize="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-timeclock" style="top:56px;left:240px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="timeclock-title">timeclock — precinct-13</span>
+        <button type="button" class="xwin-iconify" title="iconify" onclick="Game.iconifyClient('win-timeclock')">.</button>
+        <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-timeclock')">X</button>
+      </div>
+      <div class="clock-chrome">
+        <div class="clock-banner">PRECINCT TIMECLOCK 1.04</div>
+        <div class="clock-led" id="timeclock-led">--:--</div>
+      </div>
+      <div class="xwin-body clock-body" id="timeclock-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-virt">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="virt-title">netmoth — tickets.precinct</span>
+        <button type="button" class="xwin-iconify" title="iconify" onclick="Game.iconifyClient('win-virt')">.</button>
+        <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-virt')">X</button>
+      </div>
+      <div class="virt-chrome">
+        <div class="virt-menubar">File&nbsp;&nbsp;Edit&nbsp;&nbsp;View&nbsp;&nbsp;Go&nbsp;&nbsp;Bookmarks&nbsp;&nbsp;<button type="button" class="virt-help" onclick="Game.openAppHelp(typeof Virt !== 'undefined' && (Virt.page === 'virt' || Virt.page === 'guest') ? 'virt' : (Virt.page === 'ticket' ? 'tickets' : 'netmoth'))">Help</button></div>
+        <div class="virt-loc">
+          <span>Location:</span>
+          <input id="virt-url" type="text" readonly value="http://tickets.precinct/" spellcheck="false">
+        </div>
+        <div class="virt-bookmarks">
+          <button type="button" onclick="Game.intranetGo('tickets')">tickets.precinct</button>
+          <button type="button" onclick="Game.intranetGo('virt')">virt.precinct</button>
+        </div>
+      </div>
+      <div class="xwin-body virt-body" id="virt-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-case" style="top:40px;left:210px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xedit — CASE.13</span>
+      </div>
+      <div class="xwin-body app-body" id="case-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-notes" style="top:72px;left:250px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xedit — NOTES</span>
+      </div>
+      <div class="xwin-body app-body" id="notes-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-radio" style="top:104px;left:270px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xconsole — radio</span>
+      </div>
+      <div class="xwin-body app-body" id="radio-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-manual" style="top:56px;left:230px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xman</span>
+      </div>
+      <div class="xwin-body app-body xman-body" id="manual-body"></div>
+    </div>
+
+    <div class="xwin x-gadget x-drag x-client iconified withdrawn" id="win-prefs" style="top:88px;left:290px;">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">twm — Preferences</span>
+      </div>
+      <div class="xwin-body app-body">
+        <label class="opt">
+          <input type="checkbox" id="opt-crt" onchange="Game.toggleSetting('crt', this.checked)">
+          CRT scanlines
+        </label>
+        <label class="opt">
+          <input type="checkbox" id="opt-sound" onchange="Game.toggleSetting('sound', this.checked)">
+          Terminal beeps
+        </label>
+        <p class="muted keys">Esc iconifies the focused client. Click <strong>twm</strong> or right-click the root for the menu. Task buttons raise or minimize an open window. Close drops it from the bar until you open it again.</p>
+        <p class="app-help"><a href="#" onclick="Game.openAppHelp('twmprefs');return false">Help…</a></p>
+        <button class="btn danger" onclick="Game.resetProgress()">RESET PROGRESS</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WELCOME / HELP — same slip as CASE UPDATED -->
+  <div id="welcome-overlay" class="overlay">
+    <div class="success-box xwin">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="welcome-title-bar">xmessage — CASE SLIP</span>
+        <button class="xwin-close" onclick="Game.dismissWelcome()">X</button>
+      </div>
+      <div class="xwin-body brief-body success-body">
+        <div id="welcome-view">
+          <div class="brief-meta">
+            <span class="tag">NEW HIRE</span>
+            <span class="brief-stamp">DAY 1</span>
+          </div>
+          <h2>WELCOME TO THE CLOSET</h2>
+          <p>You are the new IT. The last one left a sticky note that said “good luck” and a half-eaten sandwich.</p>
+          <div class="objective">
+            <div class="objective-kicker">START HERE</div>
+            <div>Open the ticket queue. Today’s work is on the board. Type real commands. Close a ticket and the clock jumps. 16:00 punches you out.</div>
+          </div>
+          <p class="chief-line">CHIEF: Do not reboot anything that is currently blinking.</p>
+          <div id="welcome-extra">
+            <button type="button" class="btn" onclick="Game.openWalkthrough()">HOW THIS DESK WORKS</button>
+            <button type="button" class="btn" onclick="Game.dismissWelcome();Game.openManual('twm')">OPEN XMAN</button>
+          </div>
+          <button type="button" class="btn" onclick="Game.dismissWelcome()">OK</button>
+        </div>
+        <div id="walkthrough-view" hidden>
+          <div class="brief-meta">
+            <span class="tag">HELP</span>
+            <span class="brief-stamp">TWM</span>
+          </div>
+          <h2>HOW THIS DESK WORKS</h2>
+          <p>This closet is a desk. The board is the job. The slip is the order. The xterm is the tool.</p>
+          <div class="objective">
+            <div class="objective-kicker">THE DESK</div>
+            <div>
+              1. NetMoth → tickets.precinct is today’s work<br>
+              2. A ticket is the case. The slip names the asset<br>
+              3. Open the <b>xterm</b> icon on the desk (not xconsole — that is just the log). The LAN is already up. ssh the asset. Close the ticket to turn it in<br>
+              4. SHIFT CLOSED is the wrap-up. Log off to end the day. Log in tomorrow<br>
+              5. Leftovers roll. Hints file on the ticket. xman on the desk is the book for every app. man ls is still the Unix page
+            </div>
+          </div>
+          <p class="chief-line">CHIEF: If it works, do not reboot it.</p>
+          <div id="welcome-extra-walk">
+            <button type="button" class="btn" onclick="Game.showWelcomePage()">BACK</button>
+            <button type="button" class="btn" onclick="Game.dismissWelcome();Game.openManual('twm')">OPEN XMAN</button>
+          </div>
+          <button type="button" class="btn" onclick="Game.dismissWelcome()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END OF DAY — shift report, then log off -->
+  <div id="shift-report" class="overlay">
+    <div class="success-box xwin shift-report-box">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="shift-report-title">xmessage — SHIFT REPORT</span>
+        <button class="xwin-close" onclick="Game.logOff()">X</button>
+      </div>
+      <div class="xwin-body brief-body success-body shift-report-body" id="shift-report-body"></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-overlay" class="overlay">
+    <div class="success-box xwin">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name" id="success-title-bar">xmessage — CASE SLIP</span>
+        <button class="xwin-close" onclick="Game.backToDesktop()">X</button>
+      </div>
+      <div class="xwin-body brief-body success-body">
+        <div class="brief-meta">
+          <span class="tag" id="success-tag">UPDATED</span>
+          <span class="brief-stamp" id="success-stamp">CH 00</span>
+        </div>
+        <h2 id="success-title">CASE UPDATED</h2>
+        <p id="success-flavor"></p>
+        <div class="objective">
+          <div class="objective-kicker">YOU LEARNED</div>
+          <div id="success-learned"></div>
+        </div>
+        <p class="chief-line" id="success-chief"></p>
+        <div id="success-extra"></div>
+        <button class="btn" onclick="Game.backToDesktop()">RETURN TO DESKTOP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EPILOGUE -->
+  <div id="epilogue-overlay" class="overlay">
+    <div class="success-box xwin">
+      <div class="xwin-title">
+        <span class="xwin-menu"></span>
+        <span class="xwin-name">xmessage — CASE SLIP // CLOSED</span>
+        <button class="xwin-close" onclick="Game.backToDesktop()">X</button>
+      </div>
+      <div class="xwin-body brief-body success-body">
+        <div class="brief-meta">
+          <span class="tag">CLOSED</span>
+          <span class="brief-stamp">3.3</span>
+        </div>
+        <h2>ROOT OF CRIME</h2>
+        <div id="epilogue-body" class="flavor-body"></div>
+        <button class="btn" onclick="Game.backToDesktop()">FILE AND FORGET</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="taskbar" class="taskbar" hidden>
+    <button type="button" class="task-start" id="task-start" title="Twm menu">
+      <span class="task-x">X</span> twm
+    </button>
+    <button type="button" class="task-pager" id="task-pager" title="workspace 1 of 1">1</button>
+    <div class="task-list" id="task-list"></div>
+    <div class="task-tray">
+      <button type="button" class="task-mail" id="task-mail" title="xbiff">[!]</button>
+      <span class="task-tray-clock" id="task-clock">--:--</span>
+    </div>
+  </div>
+
+  <div id="term-menu" class="root-menu" hidden>
+    <div class="root-menu-title">xterm</div>
+    <button type="button" data-term="copy">Copy</button>
+    <button type="button" data-term="paste">Paste</button>
+  </div>
+
+  <div id="root-menu" class="root-menu" hidden>
+    <div class="root-menu-title">Twm</div>
+    <button type="button" data-action="netmoth">NetMoth</button>
+    <button type="button" data-action="timeclock">Timeclock</button>
+    <button type="button" data-action="xterm">xterm</button>
+    <button type="button" data-action="mail">Mail</button>
+    <button type="button" data-action="xclock">xclock</button>
+    <button type="button" data-action="xeyes">xeyes</button>
+    <button type="button" data-action="xload">xload</button>
+    <button type="button" data-action="xbiff">xbiff</button>
+    <button type="button" data-action="xconsole">xconsole</button>
+    <hr>
+    <button type="button" data-action="missions">Missions</button>
+    <button type="button" data-action="case">Case File</button>
+    <button type="button" data-action="manual">xman</button>
+    <button type="button" data-action="notes">Notes</button>
+    <button type="button" data-action="radio">Radio</button>
+    <hr>
+    <button type="button" data-action="welcome">Help…</button>
+    <button type="button" data-action="settings">Preferences…</button>
+    <hr>
+    <button type="button" data-action="logoff">Log Off</button>
+    <button type="button" data-action="restart">Restart twm</button>
+  </div>
+
+  <script src="js/vfs.js"></script>
+  <script src="js/virt.js"></script>
+  <script src="js/missions.js"></script>
+  <script src="js/jobs.js"></script>
+  <script src="js/infra.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/windows.js"></script>
+  <script src="js/desktop.js"></script>
+</body>
+</html>

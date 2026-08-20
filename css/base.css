@@ -1,0 +1,306 @@
+/* tokens, reset, CRT, xwin chrome, login, boot */
+
+/* ============================================================
+   ROOT OF CRIME — X11 / twm desktop from hell
+   ============================================================ */
+
+:root {
+  --x-face: #c4c0b4;
+  --x-hi: #ffffff;
+  --x-lo: #404040;
+  --x-ink: #000000;
+  --x-title: #204070;
+  --x-desk: #3d6b6b;
+  --x-paper: #fffef4;
+  --x-gold: #f0c040;
+  --accent: #a00000;
+  --prompt: #ff4444;
+  --info: #204070;
+  --term-fg: #d8d8d8;
+  --term-bg: #000000;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
+  font-size: 13px;
+  background: #000;
+  color: var(--x-ink);
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* CRT */
+.scanlines {
+  display: none;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+body.crt .scanlines { display: block; }
+body.crt::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 399;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.screen {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+}
+.screen.active { display: flex; }
+
+/* ========== X root (the 50% stipple) ========== */
+.x-root {
+  background-color: var(--x-desk);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%23142828'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23142828'/%3E%3C/svg%3E");
+  background-size: 2px 2px;
+  image-rendering: pixelated;
+}
+
+.x-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(18px, 3vw, 28px);
+  letter-spacing: 0.4em;
+  color: #d8f0e8;
+  opacity: 0.18;
+  pointer-events: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ========== Motif / twm window chrome ========== */
+.x-raise, .xwin, .btn, .twm-icon, .task-start, .task-btn, .root-menu {
+  border-top: 2px solid var(--x-hi);
+  border-left: 2px solid var(--x-hi);
+  border-right: 2px solid var(--x-lo);
+  border-bottom: 2px solid var(--x-lo);
+}
+.x-sink, .task-pager, .task-tray, .xconsole-log, .xload-body {
+  border-top: 1px solid var(--x-lo);
+  border-left: 1px solid var(--x-lo);
+  border-right: 1px solid var(--x-hi);
+  border-bottom: 1px solid var(--x-hi);
+}
+.x-press:active, .btn:active, .twm-icon:active, .task-start:active, .task-start.open, .task-btn.active {
+  border-top-color: var(--x-lo);
+  border-left-color: var(--x-lo);
+  border-right-color: var(--x-hi);
+  border-bottom-color: var(--x-hi);
+}
+
+.xwin {
+  background: var(--x-face);
+  color: var(--x-ink);
+  box-shadow: 1px 1px 0 #000;
+}
+
+.xwin-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--x-title);
+  color: #fff;
+  padding: 3px 4px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  cursor: default;
+  box-shadow: inset 0 1px 0 #446;
+}
+
+.xwin-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xwin-btns { display: flex; gap: 2px; flex: 0 0 auto; }
+
+.xwin-menu,
+.xwin-dot,
+.xwin-iconify,
+.xwin-max,
+.xwin-close,
+.close-btn {
+  width: 16px;
+  height: 14px;
+  flex: 0 0 16px;
+  background: var(--x-face);
+  color: #000;
+  border-top: 1px solid var(--x-hi);
+  border-left: 1px solid var(--x-hi);
+  border-right: 1px solid var(--x-lo);
+  border-bottom: 1px solid var(--x-lo);
+  font: 10px/12px Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xwin-menu {
+  background-image: linear-gradient(var(--x-ink) 0 0), linear-gradient(var(--x-ink) 0 0), linear-gradient(var(--x-ink) 0 0);
+  background-size: 8px 1px;
+  background-repeat: no-repeat;
+  background-position: 3px 3px, 3px 6px, 3px 9px;
+  cursor: default;
+}
+
+.xwin-iconify:hover,
+.xwin-max:hover,
+.xwin-close:hover,
+.close-btn:hover { background: #e0e0e0; }
+.xwin-iconify:active,
+.xwin-max:active,
+.xwin-close:active,
+.close-btn:active {
+  border-top-color: var(--x-lo);
+  border-left-color: var(--x-lo);
+  border-right-color: var(--x-hi);
+  border-bottom-color: var(--x-hi);
+}
+
+.xwin-body { background: var(--x-face); }
+
+.btn {
+  display: inline-block;
+  background: var(--x-face);
+  color: #000;
+  padding: 4px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  min-width: 72px;
+}
+.btn:hover { background: #d8d4c8; }
+.btn:active { transform: translate(1px, 1px); }
+.btn.danger { color: var(--accent); margin-top: 0.8rem; }
+
+/* ========== xdm login ========== */
+#screen-title {
+  justify-content: center;
+  align-items: center;
+}
+.xdm-box {
+  width: min(640px, calc(100% - 2rem));
+}
+.xdm-body {
+  padding: 1.4rem 1.6rem 1.2rem;
+  text-align: center;
+}
+.xdm-host {
+  font-size: 11px;
+  color: #333;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.wordmark {
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(2.4rem, 7vw, 3.8rem);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  font-weight: 700;
+  color: #000;
+  text-align: left;
+  margin: 0 auto 0.7rem;
+  width: max-content;
+}
+#screen-title .sub {
+  color: #222;
+  font-size: 13px;
+  margin-bottom: 0.9rem;
+}
+#screen-title .flavor {
+  color: #222;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+  font-size: 13px;
+  text-align: left;
+}
+.title-foot {
+  margin-top: 0.9rem;
+  color: #444;
+  font-size: 11px;
+}
+
+/* ========== Boot ========== */
+#screen-boot {
+  background: #000;
+  padding: 2rem;
+}
+.boot-log {
+  color: #00cc00;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.toast {
+  position: fixed;
+  bottom: 1.4rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--x-face);
+  border-top: 2px solid var(--x-hi);
+  border-left: 2px solid var(--x-hi);
+  border-right: 2px solid var(--x-lo);
+  border-bottom: 2px solid var(--x-lo);
+  color: #000;
+  padding: 6px 12px;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.15s;
+  font-size: 12px;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.muted { color: #444; }
+
+code {
+  font-family: "Courier New", Courier, monospace;
+  color: #004400;
+}
