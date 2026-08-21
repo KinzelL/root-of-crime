@@ -78,8 +78,9 @@ Four chapters. Cases are numbered `act.lesson`.
 
 | Case | Title | You learn |
 |------|--------|-----------|
-| **Ch 0 — The Desk** | | Game mechanics, not Linux yet |
+| **Ch 0 — The Desk** | | Game mechanics, then the first minigame |
 | 0.1 | How This Desk Works | `help`, `hint`, `man`, the slip |
+| 0.2 | lp0 on fire | Monitoring: prevent → fix → Clear on mon.precinct |
 | **Ch 1 — Beginner** | | Paths and files |
 | 1.1 | Badge Day | `pwd`, `ls`, `cat`, `cd` |
 | 1.2 | Lost in the Closet | `/`, `~`, `..`, absolute vs relative |
@@ -138,10 +139,42 @@ node scripts/desktop-verify.js
 
 Smoke checks every case is winnable and the LAN boots. Playthrough runs the intended (and some alternate) solutions, including `ssh` onto the asset. Desktop-verify checks the twm desk: windows, tickets, shift, xterm, ssh without a ticket.
 
+## Rust kernel (WIP)
+
+Open `index.html` as before. Motif / twm stays HTML/CSS. If `pkg/roc_wasm.js` is present, xterm, tickets.precinct, and mon.precinct talk to `crates/roc-kernel` through `js/roc.js`. If it is missing, the JS engine stays in charge (smoke / playthrough / a stock checkout).
+
+`crates/roc-kernel` is the headless engine: VFS, shell, LAN, virt, save, tickets, **the-desk**, and the **monitoring** minigame. `crates/roc-wasm` is the wasm-bindgen `Desk` (JSON strings the desk already knows how to paint).
+
+Campaign in Rust so far (this is what the wasm desk plays):
+
+| Case | Title | Type |
+|------|--------|------|
+| 0.1 | How This Desk Works | hub (`help` then `man ls`) |
+| 0.2 | lp0 on fire | monitoring: prevent cron → kill the job → Clear |
+
+```bash
+cargo test
+```
+
+Build the wasm the Motif desk will load:
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-bindgen-cli
+cargo build -p roc-wasm --target wasm32-unknown-unknown --release
+wasm-bindgen target/wasm32-unknown-unknown/release/roc_wasm.wasm --out-dir pkg --target web
+```
+
+Requires a local Rust toolchain. The JS suite is unchanged (`node scripts/smoke.js` and the rest).
+
 ## Layout
 
 ```
 index.html
+Cargo.toml             workspace (roc-kernel + roc-wasm)
+crates/roc-kernel/     headless engine (VFS, shell, LAN, virt, desk, monitoring, save)
+crates/roc-wasm/       JS/wasm facade (`Desk` + wasm-bindgen)
+pkg/                   generated wasm (gitignored; build with wasm-bindgen --target web)
 css/style.css          @import index
 css/base.css           tokens, xwin chrome, login, boot
 css/desktop.css        icons, gadgets, taskbar
@@ -150,10 +183,12 @@ css/term.css           xterm
 js/vfs.js              virtual filesystem
 js/virt.js             guests, disks, fstab, reboot, virt.precinct
 js/infra.js            persistent LAN (closet, precinct-13, booking-vm, coffee.lan)
+js/roc.js              wasm bridge (`Roc`). No-op until `pkg/` exists
 js/terminal.js         shell engine (input, pipes, pager, sessions)
 js/commands/           help.js, fs.js, text.js, ops.js, virt.js
 js/missions.js         campaign registry
 js/missions/*.js       one file per case
+js/mon.js              monitoring minigame (mon.precinct)
 js/jobs.js             returning job templates
 js/story.js            ranks, xman
 js/game.js             save, shift, tickets, welcome

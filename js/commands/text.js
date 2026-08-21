@@ -119,6 +119,15 @@ Object.assign(Terminal, {
   _onPagerKey(e) {
     e.preventDefault();
     e.stopPropagation();
+    if (this._pager && this._pager.kernel && typeof Roc !== 'undefined' && Roc.usesKernel()) {
+      let key = e.key;
+      if (key === ' ') key = ' ';
+      else if (e.ctrlKey && (key === 'c' || key === 'C')) key = 'q';
+      const frame = Roc.pagerKey(key);
+      this._applyKernelFrame(frame, { skipEcho: true });
+      if (typeof Game !== 'undefined' && Game._syncFromKernel) Game._syncFromKernel();
+      return;
+    }
     const k = e.key;
     if (k === 'q' || k === 'Q' || k === 'Escape') this._quitPager();
     else if (k === ' ' || k === 'f' || k === 'F' || k === 'PageDown') this._pagerPage(1);

@@ -267,7 +267,9 @@ var Terminal = {
       : value.slice(0, value.length - partial.length);
 
     let matches = [];
-    if (isFirstWord) {
+    if (typeof Roc !== 'undefined' && Roc.usesKernel()) {
+      matches = Roc.complete(value) || [];
+    } else if (isFirstWord) {
       matches = this.COMMANDS.filter((c) => c.startsWith(partial.toLowerCase()));
     } else {
       const cmd = parts[0].toLowerCase();
@@ -370,6 +372,10 @@ var Terminal = {
 
   /* ---------- Execute ---------- */
   _execute(raw) {
+    if (typeof Roc !== 'undefined' && Roc.usesKernel()) {
+      this._executeKernel(raw);
+      return;
+    }
     if (this._pager) this._quitPager();
     const prompt = this.promptEl.textContent;
     this.printRaw(`<span style="color:var(--prompt)">${this._escape(prompt)}</span> ${this._escape(raw)}`);
@@ -418,6 +424,55 @@ var Terminal = {
     }
 
     this._afterCommand(raw.trim());
+  },
+
+  _executeKernel(raw) {
+    if (this._pager && this._pager.kernel) {
+      const frame = Roc.pagerKey('q');
+      this._applyKernelFrame(frame, { skipEcho: true });
+    } else if (this._pager) {
+      this._quitPager();
+    }
+    const prompt = (this.promptEl && this.promptEl.textContent) || (typeof Roc !== 'undefined' ? Roc.prompt() : '');
+    this.printRaw(`<span style="color:var(--prompt)">${this._escape(prompt)}</span> ${this._escape(raw)}`);
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) return;
+    const frame = Roc.run(line);
+    this._applyKernelFrame(frame, { skipEcho: true });
+    if (typeof Game !== 'undefined' && Game._syncFromKernel) Game._syncFromKernel();
+    if (typeof Game !== 'undefined' && Game.refreshMissionHud) Game.refreshMissionHud();
+    if (typeof Virt !== 'undefined' && (Virt.page === 'mon' || Virt.page === 'ticket')) Virt.paint();
+  },
+
+  _applyKernelFrame(frame, opts) {
+    if (!frame) return;
+    if (frame.clear) this.clear();
+    if (frame.pager_active) {
+      this._pager = { kernel: true };
+      if (this.outputEl) this.outputEl.innerHTML = this._escape(frame.pager_view || '') + '\n';
+      if (this.promptEl) this.promptEl.textContent = frame.pager_status || '--More--';
+      if (this.inputEl) {
+        this.inputEl.value = '';
+        this.inputEl.readOnly = true;
+      }
+      this._scroll();
+      return;
+    }
+    if (this._pager && this._pager.kernel) {
+      this._pager = null;
+      if (this.inputEl) this.inputEl.readOnly = false;
+    }
+    if (frame.stderr) this.print(String(frame.stderr).replace(/\n$/, ''), 'error');
+    if (frame.stdout && !(opts && opts.skipStdout)) {
+      this.print(String(frame.stdout).replace(/\n$/, ''));
+    }
+    this.host = frame.host || this.host;
+    this.cwd = frame.cwd || this.cwd;
+    this.user = (this.host === 'closet') ? 'itguy' : 'root';
+    this.home = this.host === 'booking-vm' ? '/root' : '/home/itguy';
+    if (this.promptEl && frame.prompt) this.promptEl.textContent = frame.prompt;
+    this.missionId = frame.current_id || this.missionId;
+    this._scroll();
   },
 
   _splitPipes(line) {
@@ -488,6 +543,7 @@ var Terminal = {
     if (typeof mission.afterCommand === 'function') {
       mission.afterCommand(line, ctx, vfs, this);
     }
+    if (typeof Mon !== 'undefined' && Mon.tick) Mon.tick(ctx, vfs, mission);
     Game.refreshMissionHud();
   },
 

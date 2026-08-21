@@ -19,6 +19,11 @@ var Virt = {
       this.paint();
       return;
     }
+    if (page === 'mon' || page === 'nag' || page === 'alerts') {
+      this.page = 'mon';
+      this.paint();
+      return;
+    }
     this.page = page || 'tickets';
     if (extra && extra.ticketId) this.ticketId = extra.ticketId;
     if (this.page === 'tickets') this.ticketId = extra && extra.ticketId ? extra.ticketId : null;
@@ -288,6 +293,7 @@ var Virt = {
     const el = typeof document !== 'undefined' ? document.getElementById('virt-body') : null;
     if (!el) return;
     if (this.page === 'ticket') return this.paintTicket(el);
+    if (this.page === 'mon') return this.paintMon(el);
     if (this.page === 'guest') {
       this.page = 'virt';
       this.sel = this.GUEST;
@@ -310,13 +316,60 @@ var Virt = {
     return 'SHIFT ' + Game.shiftStamp(true) + ' · punch out 16:00';
   },
 
+  paintMon(el) {
+    this.setUrl('http://mon.precinct/nagios', 'mon.precinct');
+    const snap = typeof Mon !== 'undefined' ? Mon.snapshot() : { rows: [], red: false, warn: false, live: false, mission: null };
+    const esc = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const color = (c) => (c === 'CRIT' ? 'mon-crit' : (c === 'WARN' ? 'mon-warn' : 'mon-ok'));
+    const rows = (snap.rows || []).map((r) => {
+      const work = r.alert && r.missionId
+        ? '<button type="button" class="btn" onclick="event.stopPropagation();Mon.work(\'' + r.host + '\')">ssh</button>'
+        : '';
+      const clear = r.alert || r.color === 'WARN'
+        ? '<button type="button" class="btn" onclick="event.stopPropagation();Mon.clear(\'' + r.host + '\')">Clear</button>'
+        : '<span class="muted">—</span>';
+      return '<tr class="' + color(r.color) + '"' +
+        (r.missionId ? ' onclick="Game.intranetGo(\'mon\');Mon.work(\'' + r.host + '\')"' : '') + '>' +
+        '<td>' + esc(r.host) + '</td>' +
+        '<td>' + esc(r.check) + '</td>' +
+        '<td class="mon-st">' + esc(r.status) + '</td>' +
+        '<td>' + work + ' ' + clear + '</td></tr>';
+    }).join('');
+    const kicker = snap.red
+      ? 'HOSTS DOWN / CHECKS CRITICAL — do not Clear until it cannot come back'
+      : (snap.warn
+        ? 'UNACK — the noise is dead. Mash Clear. If you skipped prevent, it flaps.'
+        : 'All hosts OK. For now.');
+    const closeBtn = (snap.cleared && snap.prevent && snap.fix)
+      ? '<p><button type="button" class="btn" onclick="Game.closeTicket()">Close ticket</button></p>'
+      : '';
+    el.innerHTML =
+      '<div class="tkt-banner">PRECINCT NAGIOS 1.9b — mon.precinct</div>' +
+      '<div class="tkt-sub">' + this.shiftLine() + '</div>' +
+      '<p class="mon-kicker">' + kicker + '</p>' +
+      '<table class="tkt-table mon-table">' +
+        '<tr><th>Host</th><th>Check</th><th>St</th><th></th></tr>' +
+        (rows || '<tr><td colspan="4">No hosts.</td></tr>') +
+      '</table>' +
+      closeBtn +
+      '<p class="tkt-foot">Contact: itguy@closet · ACK is not a fix · ' +
+        '<a href="#" onclick="Game.openAppHelp(\'mon\');return false">help</a></p>';
+  },
+
   paintTickets(el) {
     this.setUrl('http://tickets.precinct/queue', 'tickets.precinct');
     const done = (typeof Game !== 'undefined' && Game.state && Game.state.completed) || [];
     const current = (typeof Game !== 'undefined' && Game.state && Game.state.currentMissionId) || null;
     const day = (typeof Game !== 'undefined' && Game.state && Game.state.shiftDay) || 0;
     const filter = this.ticketFilter || 'open';
-    const rows = Missions.list().map((m) => {
+    const kernel = typeof Roc !== 'undefined' && Roc.usesKernel();
+    const source = kernel
+      ? Roc.tickets().map((c) => Missions.get(c.id) || {
+        id: c.id, title: c.title, chapter: c.chapter, asset: c.asset, act: 0, lesson: 0
+      })
+      : Missions.list();
+    const rows = source.map((m) => {
       const st = this.ticketStatus(m, done, current);
       return { m, st, no: this.ticketNo(m), due: this.shiftDue(m, day) };
     }).filter((r) => {
@@ -356,10 +409,13 @@ var Virt = {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     this.setUrl('http://tickets.precinct/' + this.ticketNo(mission), 'tickets.precinct');
     const env = (typeof Game !== 'undefined' && Game.ticketEnv) ? Game.ticketEnv() : null;
-    const live = !!(env && env.id === mission.id);
+    const live = !!(env && env.id === mission.id)
+      || (typeof Roc !== 'undefined' && Roc.usesKernel() && Roc.currentId() === mission.id);
     const ctx = live ? env.ctx : null;
     const vfs = live ? env.vfs : null;
-    const items = Missions.tracker(mission, ctx, vfs);
+    const items = (typeof Game !== 'undefined' && Game.trackerItems)
+      ? Game.trackerItems(mission, ctx, vfs)
+      : Missions.tracker(mission, ctx, vfs);
     const tdone = items.filter((i) => i.done).length;
     const tracker = items.length
       ? '<div class="objective">' +
@@ -399,12 +455,15 @@ var Virt = {
               '<button type="button" class="btn" onclick="Game.intranetGo(\'tickets\')">Back to queue</button>') +
         '</div>';
     } else if (st === 'INPROG') {
-      const ready = !!(ctx && vfs && mission.isWon(ctx, vfs));
+      const ready = (typeof Roc !== 'undefined' && Roc.usesKernel())
+        ? Roc.tracker().every((i) => i.done)
+        : !!(ctx && vfs && mission.isWon(ctx, vfs));
       action =
         '<div class="tkt-actions">' +
           '<button type="button" class="btn" onclick="Game.ticketHelp()">Job notes</button>' +
           '<button type="button" class="btn" onclick="Game.ticketHint()">Hint (−' + Missions.HINT_COST + ')</button>' +
           (mission.virt ? '<button type="button" class="btn" onclick="Game.intranetGo(\'virt\')">Open virt</button>' : '') +
+          (mission.monitor ? '<button type="button" class="btn" onclick="Game.intranetGo(\'mon\')">Open mon</button>' : '') +
           '<button type="button" class="btn' + (ready ? ' tkt-close' : '') + '" onclick="Game.closeTicket()"' +
             (ready ? '' : ' disabled') + '>Close ticket</button>' +
         '</div>' +

@@ -1,0 +1,13 @@
+[package]
+name = "roc-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "wasm/JS facade for roc-kernel. The desk will call this instead of js/vfs.js + js/game.js."
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+roc-kernel = { path = "../roc-kernel" }
+wasm-bindgen = "0.2"

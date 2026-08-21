@@ -24,16 +24,24 @@ const APP_DOCS = [
     title: 'NetMoth',
     body:
       'The precinct intranet browser. It is ugly on purpose.\n\n' +
-      'Bookmarks: tickets.precinct is the job board. virt.precinct is the VM inventory. The location bar does not browse the real web.\n\n' +
+      'Bookmarks: tickets.precinct is the paper. mon.precinct is the board (red hosts). virt.precinct is the VM inventory. The location bar does not browse the real web.\n\n' +
       'File / Edit / View do nothing. Help opens this book on the page you are looking at.'
   },
   {
     id: 'tickets',
     title: 'TicketQueue',
     body:
-      'Today’s work. Open NetMoth → tickets.precinct.\n\n' +
-      'Work this ticket. The slip names the asset. Connect tells you the ssh. Job notes and Hint file on the ticket (hint costs score).\n\n' +
-      'Close ticket turns the job in when the tracker is done. It does not open xterm. You do that.'
+      'Today’s work. Open NetMoth → mon.precinct for the red host. tickets.precinct is the paper trail.\n\n' +
+      'The slip names the asset. ssh it in xterm. Stop it coming back, stop the noise, then Clear on the board.\n\n' +
+      'Close ticket turns it in when the tracker is done. Clear is not close. Clear is the minigame.'
+  },
+  {
+    id: 'mon',
+    title: 'mon.precinct',
+    body:
+      'Shitty Nagios. Red host is the job.\n\n' +
+      'Prevent: stop it coming back (cron, the looping job). Fix: kill the noise that is firing now. Clear: the button on this page.\n\n' +
+      'If you Clear early it flaps. ACK is not a fix. xterm is how you cheat the board.'
   },
   {
     id: 'virt',

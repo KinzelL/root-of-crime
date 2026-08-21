@@ -68,7 +68,7 @@ function el(id, className) {
   'screen-title', 'screen-boot', 'screen-desktop',
   'taskbar', 'task-list', 'task-mail', 'task-clock', 'task-start', 'task-pager',
   'root-menu', 'desktop-icons', 'progress-text', 'rank-text', 'score-text',
-  'desktop-clock', 'mission-list', 'mission-title-bar', 'mission-tag',
+  'desktop-clock', 'xbiff-alert', 'mission-list', 'mission-title-bar', 'mission-tag',
   'mission-name', 'mission-desc', 'mission-tracker', 'mission-track-count', 'mission-stamp', 'xterm-title',
   'success-title', 'success-flavor', 'success-learned', 'success-chief',
   'success-extra', 'case-body', 'notes-body', 'radio-body', 'manual-body',
@@ -232,6 +232,10 @@ assert(!els['win-xconsole'].classList.contains('withdrawn'), 'xconsole icon/menu
 Game.winClose('win-xconsole', true);
 Game.intranetGo('tickets');
 assert(/TicketQueue/.test(els['virt-body'].innerHTML || ''), 'helpdesk did not paint');
+Game.intranetGo('mon');
+assert(/mon\.precinct/.test(els['virt-body'].innerHTML || ''), 'mon.precinct did not paint');
+assert(/PRECINCT NAGIOS/.test(els['virt-body'].innerHTML || ''), 'mon.precinct missing nagios chrome');
+Game.intranetGo('tickets');
 assert(/TKT-/.test(els['virt-body'].innerHTML || ''), 'helpdesk missing tickets');
 assert(/Today/.test(els['virt-body'].innerHTML || ''), 'today tab missing');
 assert(/How This Desk Works/.test(els['virt-body'].innerHTML || ''), 'today missing the desk');

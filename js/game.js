@@ -41,9 +41,49 @@ var Game = {
     this._bindDesktop();
     if (this.winBindAll) this.winBindAll();
     this._startMailLoop();
+    if (typeof Roc !== 'undefined' && Roc.ready) {
+      Promise.resolve(Roc.ready).then(() => {
+        if (this._kernel()) {
+          this._syncFromKernel();
+          this._updateChrome();
+        }
+      });
+    }
+  },
+
+  _kernel() {
+    return typeof Roc !== 'undefined' && Roc.usesKernel();
+  },
+
+  _syncFromKernel() {
+    if (!this._kernel()) return;
+    this.state.completed = Roc.completed();
+    this.state.score = Roc.score();
+    this.state.currentMissionId = Roc.currentId();
+    const save = Roc.parse(Roc.saveJson()) || {};
+    if (save.hints_used != null) this.state.hintsUsed = save.hints_used;
+    if (save.shift_day != null) this.state.shiftDay = save.shift_day;
+    if (save.shift_min != null) this.state.shiftMin = save.shift_min;
+    if (save.seen_briefing != null) this.state.seenBriefing = save.seen_briefing;
+    if (typeof Terminal !== 'undefined') {
+      Terminal.host = Roc.host();
+      Terminal.cwd = Roc.cwd();
+      Terminal.missionId = this.state.currentMissionId;
+      if (Terminal.promptEl) Terminal.promptEl.textContent = Roc.prompt();
+    }
+    Roc.persist();
   },
 
   start() {
+    if (typeof Roc !== 'undefined' && Roc.available && Roc.available() && !Roc.usesKernel()) {
+      Promise.resolve(Roc.ready).then(() => this._startNow());
+      return;
+    }
+    this._startNow();
+  },
+
+  _startNow() {
+    if (this._kernel()) this._syncFromKernel();
     this._play('boot');
     this.showScreen('boot');
     this._runBoot(() => {
@@ -92,11 +132,13 @@ var Game = {
   _save() {
     const { currentScreen, currentMissionId, ...rest } = this.state;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
+    if (this._kernel()) Roc.persist();
   },
 
   resetProgress() {
     const settings = this.state.settings;
     if (typeof Missions !== 'undefined' && Missions.forgetJobs) Missions.forgetJobs();
+    if (this._kernel()) Roc.reset();
     this.state = this._defaultState();
     this.state.settings = settings;
     this.iconifyClient('win-xterm', true);
@@ -279,12 +321,29 @@ var Game = {
     this._renderDesktopIcons();
     this._paintConsole();
     this._paintXmessage();
+    this._paintXbiffAlert();
     if (typeof Virt !== 'undefined' && Virt.page !== 'guest') Virt.paint();
     const clock = document.getElementById('win-timeclock');
     if (clock && !clock.classList.contains('iconified') && (this._shiftView || 'status') === 'status') {
       this._paintTimeclock();
     }
     this._renderTaskbar();
+  },
+
+  _paintXbiffAlert() {
+    const el = document.getElementById('xbiff-alert');
+    if (!el) return;
+    const snap = typeof Mon !== 'undefined' ? Mon.snapshot() : { red: false, warn: false };
+    if (snap.red) {
+      el.textContent = 'mon: CRITICAL';
+      el.className = 'xbiff-crit';
+    } else if (snap.warn) {
+      el.textContent = 'mon: UNACK';
+      el.className = 'xbiff-warn';
+    } else {
+      el.textContent = 'mon: OK';
+      el.className = 'xbiff-ok';
+    }
   },
 
   _ensureShift() {
@@ -358,6 +417,11 @@ var Game = {
   _shiftWork() {
     this._ensureShift();
     this._ensureJobs();
+    if (this._kernel()) {
+      return Roc.tickets()
+        .filter((t) => !t.done && t.unlocked && t.today)
+        .map((t) => Missions.get(t.id) || { id: t.id, title: t.title, act: 0 });
+    }
     return Missions.todayWork(this.state.completed, this.state.shiftDay);
   },
 
@@ -698,6 +762,38 @@ var Game = {
 
   punchOut(why) {
     this._ensureShift();
+    if (this._kernel()) {
+      const from = this.state.shiftDay;
+      const leftoverList = this._shiftWork();
+      const report = Roc.punchOut();
+      this._syncFromKernel();
+      const leftover = report.leftover || leftoverList.length;
+      const ontime = report.on_time ? Missions.ON_TIME_BONUS : 0;
+      const log = {
+        day: from,
+        closed: (this.state.shiftClosed || []).slice(),
+        score: report.score || this.state.score,
+        leftover,
+        leftovers: leftoverList.map((m) => m.id),
+        hints: this.state.shiftHints || 0,
+        ontime,
+        why: why || 'manual',
+        when: this._shiftWhen()
+      };
+      this.state.shiftLog = (this.state.shiftLog || []).concat([log]);
+      this.state.shiftClosed = [];
+      this.state.shiftScore = 0;
+      this.state.shiftHints = 0;
+      this._lastPunch = log;
+      this._punchNote = true;
+      this._save();
+      this._updateChrome();
+      const next = this.shiftStamp();
+      if (leftover) this.toast('Punched out. ' + leftover + ' ticket(s) roll to ' + next + '.');
+      else this.toast('Punched out. Next shift is ' + next + '.');
+      this._paintShiftSummary(log);
+      return true;
+    }
     const leftoverList = this._shiftWork();
     const leftover = leftoverList.length;
     const from = this.state.shiftDay;
@@ -743,9 +839,11 @@ var Game = {
     this._ensureShift();
     const past = this.state.shiftMin >= Missions.SHIFT_END;
     const work = this._shiftWork();
-    const later = Missions.list().some((m) => (
-      !this.state.completed.includes(m.id) && Missions.shiftDayOf(m) > this.state.shiftDay
-    ));
+    const later = this._kernel()
+      ? Roc.tickets().some((t) => !t.done && !t.today)
+      : Missions.list().some((m) => (
+        !this.state.completed.includes(m.id) && Missions.shiftDayOf(m) > this.state.shiftDay
+      ));
     if (past) return this.punchOut('bell');
     if (!work.length && later) return this.punchOut('clear');
     if (!work.length && first && !later) return this.punchOut('done');
@@ -775,6 +873,15 @@ var Game = {
   },
 
   workTicket(id) {
+    if (this._kernel()) {
+      try {
+        const intro = Roc.workTicket(id);
+        this._startKernelTicket(id, intro);
+      } catch (err) {
+        this.toast(String(err && err.message ? err.message : err));
+      }
+      return;
+    }
     const mission = Missions.get(id);
     if (!mission) return;
     if (!Missions.isUnlocked(mission, this.state.completed)) {
@@ -787,6 +894,42 @@ var Game = {
       return;
     }
     this.startMission(id);
+  },
+
+  _startKernelTicket(id, intro) {
+    this._play('click');
+    this._syncFromKernel();
+    this.state.currentMissionId = id;
+    this.state.missionHints = 0;
+    const mission = Missions.get(id);
+    const asset = (mission && Missions.assetOf(mission)) || (Roc.tickets().find((t) => t.id === id) || {}).asset || 'closet';
+    this.ticketSession = { id, host: asset, cwd: '/home/itguy' };
+    const code = mission ? Missions.code(mission) : '';
+    if (this.els.missionTitleBar) this.els.missionTitleBar.textContent = `xmessage — CASE SLIP // ${code}`;
+    if (this.els.missionTag && mission) this.els.missionTag.textContent = mission.difficulty.toUpperCase();
+    if (this.els.missionStamp) this.els.missionStamp.textContent = code;
+    if (this.els.missionName && mission) this.els.missionName.textContent = mission.title;
+    if (this.els.missionDesc && mission) this.els.missionDesc.textContent = mission.description;
+    this._paintTracker(mission, null, null);
+    this.closeOverlay('success-overlay');
+    this.closeOverlay('epilogue-overlay');
+    this.showScreen('desktop');
+    this.iconifyClient('win-brief', true);
+    if (typeof Virt !== 'undefined') {
+      if (mission && mission.monitor) Virt.go('mon');
+      else Virt.go('ticket', { ticketId: id });
+      this._raiseWindow(document.getElementById('win-virt'));
+      this._placeVirtWindow();
+    }
+    const xt = document.getElementById('win-xterm');
+    const xtermOpen = xt && !xt.classList.contains('withdrawn') && !xt.classList.contains('iconified');
+    const toast = Roc.toast();
+    if (!xtermOpen && toast) this.toast(toast);
+    else if (toast) this.toast(toast);
+    if (intro && typeof Terminal !== 'undefined' && Terminal.print) {
+      /* slip already has the job; xterm stays as-is */
+    }
+    this._updateChrome();
   },
 
   /* ---------- Apps ---------- */
@@ -815,6 +958,16 @@ var Game = {
   },
 
   ticketHint() {
+    if (this._kernel()) {
+      const frame = Roc.run('hint');
+      const text = (frame.stdout || '').replace(/\n$/, '');
+      if (text) this.recordTicketHint([{ text }]);
+      this._syncFromKernel();
+      this.toast(frame.toast || Roc.toast() || 'Hint filed on the ticket');
+      if (typeof Virt !== 'undefined' && Virt.page === 'ticket') Virt.paint();
+      this._updateChrome();
+      return;
+    }
     const env = this.ticketEnv();
     const id = env.id || this.state.currentMissionId;
     const mission = Missions.get(id);
@@ -830,6 +983,15 @@ var Game = {
   },
 
   ticketHelp() {
+    if (this._kernel()) {
+      const frame = Roc.run('help');
+      const id = Roc.currentId() || this.state.currentMissionId;
+      if (id) this._notesFor(id).help = (frame.stdout || '').replace(/\n$/, '');
+      this._syncFromKernel();
+      if (typeof Virt !== 'undefined' && Virt.page === 'ticket') Virt.paint();
+      this.refreshMissionHud();
+      return;
+    }
     const env = this.ticketEnv();
     const id = env.id || this.state.currentMissionId;
     const mission = Missions.get(id);
@@ -999,6 +1161,11 @@ var Game = {
   },
 
   startMission(id) {
+    if (this._kernel()) {
+      if (Roc.hasTicket(id)) return this.workTicket(id);
+      this.toast('That ticket is not on this kernel shift.');
+      return;
+    }
     const mission = Missions.get(id);
     if (!mission) return;
     this._play('click');
@@ -1034,7 +1201,8 @@ var Game = {
     this.showScreen('desktop');
     this.iconifyClient('win-brief', true);
     if (typeof Virt !== 'undefined') {
-      Virt.go('ticket', { ticketId: id });
+      if (mission.monitor) Virt.go('mon');
+      else Virt.go('ticket', { ticketId: id });
       this._raiseWindow(document.getElementById('win-virt'));
       this._placeVirtWindow();
     }
@@ -1125,6 +1293,35 @@ var Game = {
   },
 
   closeTicket() {
+    if (this._kernel()) {
+      const id = Roc.currentId() || this.state.currentMissionId;
+      try {
+        Roc.closeTicket();
+      } catch (err) {
+        this.toast(String(err && err.message ? err.message : err));
+        return false;
+      }
+      const mission = Missions.get(id);
+      this._syncFromKernel();
+      if (mission) {
+        this._notesFor(id).closeout = {
+          first: true,
+          flavor: mission.successFlavor || '',
+          learned: mission.learned || '',
+          chief: mission.chiefNote || ''
+        };
+      }
+      this.toast(Roc.toast() || 'Ticket closed');
+      this.iconifyClient('win-brief', true);
+      if (typeof Virt !== 'undefined') {
+        Virt.go('ticket', { ticketId: id });
+        this._raiseWindow(document.getElementById('win-virt'));
+        this._placeVirtWindow();
+      }
+      this._updateChrome();
+      this._maybePunchOut({ first: true });
+      return true;
+    }
     const env = this.ticketEnv();
     const id = env.id || (typeof Terminal !== 'undefined' && Terminal.missionId) || this.state.currentMissionId;
     const mission = Missions.get(id);
@@ -1165,15 +1362,25 @@ var Game = {
     const mission = Missions.get(env.id || this.state.currentMissionId);
     if (!mission) return;
     this._paintTracker(mission, env.ctx, env.vfs);
-    if (typeof Virt !== 'undefined' && Virt.page === 'ticket' && Virt.ticketId === mission.id) {
+    if (typeof Virt !== 'undefined' && (
+      (Virt.page === 'ticket' && Virt.ticketId === mission.id) ||
+      Virt.page === 'mon'
+    )) {
       Virt.paint();
     }
+  },
+
+  trackerItems(mission, ctx, vfs) {
+    if (this._kernel() && mission && this.state.currentMissionId === mission.id) {
+      return Roc.tracker();
+    }
+    return Missions.tracker(mission, ctx, vfs);
   },
 
   _paintTracker(mission, ctx, vfs) {
     const ul = this.els.missionTracker;
     if (!ul) return;
-    const items = Missions.tracker(mission, ctx, vfs);
+    const items = this.trackerItems(mission, ctx, vfs);
     const done = items.filter((i) => i.done).length;
     if (this.els.missionTrackCount) {
       this.els.missionTrackCount.textContent = items.length ? done + '/' + items.length : '';

@@ -594,6 +594,16 @@
 .tkt-table tr.tkt-inprog { cursor: pointer; background: #ffe680; }
 .tkt-table tr.tkt-closed, .tkt-table tr.tkt-wait { color: #666; cursor: pointer; }
 .tkt-table tr.tkt-open:hover, .tkt-table tr.tkt-inprog:hover { background: #fff3b0; }
+
+.mon-kicker { font-size: 12px; margin: 8px; line-height: 1.35; }
+.mon-table tr.mon-crit { background: #f0c0c0; cursor: pointer; }
+.mon-table tr.mon-warn { background: #ffe680; cursor: pointer; }
+.mon-table tr.mon-ok { color: #060; }
+.mon-table .mon-st { font-weight: bold; letter-spacing: 0.04em; }
+.mon-table tr.mon-crit:hover, .mon-table tr.mon-warn:hover { background: #fff3b0; }
+.xbiff-ok { color: #060; }
+.xbiff-warn { color: #860; font-weight: bold; }
+.xbiff-crit { color: #a00; font-weight: bold; }
 .tkt-detail { padding: 8px 10px; background: var(--x-paper); font-size: 12px; }
 .tkt-detail h3 { margin: 6px 0; font-size: 14px; }
 .tkt-meta { color: #444; font-size: 11px; }

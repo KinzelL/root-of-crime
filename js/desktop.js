@@ -323,7 +323,7 @@ Object.assign(Game, {
     const el = document.getElementById('xload-bars');
     if (!el) return;
     const n = 24;
-    const load = 0.25 + (this.state.completed.includes('wanted-poster') ? 0.1 : 0.45) + Math.random() * 0.2;
+    const load = 0.25 + ((typeof Mon !== 'undefined' && Mon.hasRed()) ? 0.7 : (this.state.completed.includes('wanted-poster') || this.state.completed.includes('mon-printer') ? 0.1 : 0.45)) + Math.random() * 0.2;
     el.innerHTML = Array.from({ length: n }, (_, i) => {
       const t = (i / n);
       const h = Math.max(8, Math.round(52 * Math.min(1, load * (0.4 + t) * (0.6 + Math.random() * 0.6))));
@@ -339,9 +339,15 @@ Object.assign(Game, {
     const lines = [
       'Xlib:  extension "XFree86-VidMode" missing on display ":0".',
       'twm:  started on precinct-13:0',
-      Missions.cleared(done, 'wanted-poster')
-        ? 'lp0: idle (miracle)'
-        : '<span class="err">lp0 on fire</span>',
+      (typeof Mon !== 'undefined' && Mon.hasRed())
+        ? '<span class="err">mon.precinct: CRITICAL' +
+            (function () {
+              const row = Mon.snapshot().rows.find((r) => r.alert);
+              return row ? ' — ' + row.host : '';
+            }()) + '</span>'
+        : (Missions.cleared(done, 'mon-printer') || Missions.cleared(done, 'wanted-poster')
+          ? 'lp0: idle (miracle)'
+          : '<span class="err">lp0 on fire</span>'),
       'sshd[42]: Server listening on 0.0.0.0 port 22.',
       'libvirtd: booking-vm running on precinct-13',
       Missions.cleared(done, 'coffee-c2')

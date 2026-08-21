@@ -16,12 +16,14 @@ function loadCampaign(ctx, root) {
     runFile(ctx, path.join(root, 'js/missions', file));
   });
   runFile(ctx, path.join(root, 'js/jobs.js'));
+  runFile(ctx, path.join(root, 'js/mon.js'));
   runFile(ctx, path.join(root, 'js/infra.js'));
 }
 
 function loadGame(ctx, root) {
   loadCampaign(ctx, root);
   runFile(ctx, path.join(root, 'js/terminal.js'));
+  runFile(ctx, path.join(root, 'js/roc.js'));
   const cmds = ctx.Terminal && ctx.Terminal.COMMAND_SOURCES;
   if (!cmds || !cmds.length) throw new Error('Terminal.COMMAND_SOURCES is empty');
   cmds.forEach((file) => {

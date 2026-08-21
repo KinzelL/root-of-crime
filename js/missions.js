@@ -21,6 +21,7 @@ var Missions = {
 
   SOURCES: [
     '00-the-desk.js',
+    'm-printer.js',
     '01-badge-day.js',
     '02-lost-closet.js',
     '03-file-locker.js',

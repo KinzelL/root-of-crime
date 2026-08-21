@@ -33,6 +33,14 @@ win('the-desk', (ctx) => {
   ctx.usedMan = true;
 });
 
+win('mon-printer', (ctx, vfs) => {
+  delete VFS.resolve(vfs, '/', '/etc/cron.d').node.children.wanted;
+  const p = ctx.processes.find((x) => x.pid === 1337);
+  p.dead = true;
+  ctx.killed = [p];
+  ctx.monCleared = true;
+});
+
 win('badge-day', (ctx) => {
   ctx.readFiles = ['/home/itguy/welcome.txt'];
 });
@@ -203,6 +211,13 @@ function track(id, expect, apply) {
 }
 
 track('the-desk', 2, (ctx) => { ctx.usedHelp = true; ctx.usedMan = true; });
+track('mon-printer', 3, (ctx, vfs) => {
+  delete VFS.resolve(vfs, '/', '/etc/cron.d').node.children.wanted;
+  const p = ctx.processes.find((x) => x.pid === 1337);
+  p.dead = true;
+  ctx.killed = [p];
+  ctx.monCleared = true;
+});
 track('file-locker', 3, (_ctx, vfs) => {
   const tmp = VFS.resolve(vfs, '/', '/tmp').node;
   const dest = VFS.dir({});
@@ -259,6 +274,23 @@ assert(Missions.shiftDayOf(Missions.get('wanted-poster')) === 1, '2.1 is friday'
 assert(Missions.shiftDayOf(Missions.get('disk-full')) === 2, '2.6 is saturday');
 assert(Missions.shiftDayOf(Missions.get('booking-vm')) === 3, '3.1 is sunday');
 assert(Missions.todayWork([], 0).some((m) => m.id === 'the-desk'), 'thursday work missing the desk');
+assert(Missions.todayWork(['the-desk'], 0).some((m) => m.id === 'mon-printer'), 'printer alert missing after the desk');
+{
+  const m = Missions.get('mon-printer');
+  const setup = m.setup();
+  const p = setup.ctx.processes.find((x) => x.pid === 1337);
+  p.dead = true;
+  setup.ctx.killed = [p];
+  assert(!m.monitor.prevent(setup.ctx, setup.vfs), 'cron should still be there');
+  Mon.tick(setup.ctx, setup.vfs, m);
+  Mon.tick(setup.ctx, setup.vfs, m);
+  assert(!p.dead, 'killed printer should flap back without prevent');
+  delete VFS.resolve(setup.vfs, '/', '/etc/cron.d').node.children.wanted;
+  p.dead = true;
+  setup.ctx.killed = [p];
+  setup.ctx.monCleared = true;
+  assert(m.isWon(setup.ctx, setup.vfs), 'prevent + fix + clear should win');
+}
 assert(!Missions.todayWork([], 0).some((m) => m.id === 'wanted-poster'), 'friday leaked onto thursday');
 assert(Missions.ticketPay(Missions.get('the-desk')) === 50, 'desk pay');
 assert(Missions.ticketPay(Missions.get('badge-day')) === 100, 'beginner pay');
@@ -319,9 +351,11 @@ assert(/id="win-manual"/.test(html), 'xman client missing');
 assert(/id="shift-report"/.test(html), 'shift report missing');
 assert(/js\/jobs\.js/.test(html), 'jobs.js not loaded');
 assert(/js\/infra\.js/.test(html), 'infra.js not loaded');
+assert(/js\/mon\.js/.test(html), 'mon.js not loaded');
+assert(/mon\.precinct/.test(html), 'mon.precinct bookmark missing');
 const storySrc = fs.readFileSync(path.join(root, 'js/story.js'), 'utf8');
 assert(/const APP_DOCS/.test(storySrc), 'APP_DOCS missing');
-assert(/id: 'xterm'/.test(storySrc) && /id: 'tickets'/.test(storySrc), 'app tutorials incomplete');
+assert(/id: 'xterm'/.test(storySrc) && /id: 'tickets'/.test(storySrc) && /id: 'mon'/.test(storySrc), 'app tutorials incomplete');
 assert(!/id="win-welcome"/.test(html), 'welcome is still a desktop gadget');
 assert(!/id="briefing"/.test(html), 'legacy briefing overlay still in the DOM');
 const gameSrc = fs.readFileSync(path.join(root, 'js/game.js'), 'utf8');

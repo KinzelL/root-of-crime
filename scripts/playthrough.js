@@ -98,6 +98,28 @@ function play(id, commands) {
 
 play('the-desk', ['help', 'man ls']);
 play('the-desk', ['help', 'hint']);
+{
+  const m = Missions.get('mon-printer');
+  const setup = m.setup();
+  ctx.Game.ticketSession = {
+    id: 'mon-printer', host: 'precinct-13', vfs: setup.vfs, ctx: setup.ctx, cwd: setup.cwd
+  };
+  Terminal.reset({
+    missionId: 'mon-printer',
+    intro: '',
+    ctx: setup.ctx,
+    vfs: setup.vfs,
+    cwd: setup.cwd,
+    host: 'precinct-13',
+    user: 'root',
+    home: '/home/itguy'
+  });
+  Terminal._execute('rm /etc/cron.d/wanted');
+  Terminal._execute('kill 1337');
+  ctx.Mon.clear('precinct-13');
+  if (typeof ctx.Game.closeTicket === 'function') ctx.Game.closeTicket();
+  if (!wins.includes('mon-printer')) throw new Error('playthrough failed: mon-printer');
+}
 play('badge-day', ['pwd', 'ls', 'cat welcome.txt']);
 
 {

@@ -100,6 +100,7 @@ CRIME</pre>
         <div id="rank-text">RECRUIT</div>
         <div id="score-text">SCORE 0</div>
         <div id="progress-text">CASES 0/15</div>
+        <div id="xbiff-alert" class="xbiff-ok">mon: OK</div>
         <div id="desktop-clock">--:--</div>
       </div>
     </div>
@@ -198,13 +199,14 @@ CRIME</pre>
         <button type="button" class="xwin-close" onclick="Game.iconifyClient('win-virt')">X</button>
       </div>
       <div class="virt-chrome">
-        <div class="virt-menubar">File&nbsp;&nbsp;Edit&nbsp;&nbsp;View&nbsp;&nbsp;Go&nbsp;&nbsp;Bookmarks&nbsp;&nbsp;<button type="button" class="virt-help" onclick="Game.openAppHelp(typeof Virt !== 'undefined' && (Virt.page === 'virt' || Virt.page === 'guest') ? 'virt' : (Virt.page === 'ticket' ? 'tickets' : 'netmoth'))">Help</button></div>
+        <div class="virt-menubar">File&nbsp;&nbsp;Edit&nbsp;&nbsp;View&nbsp;&nbsp;Go&nbsp;&nbsp;Bookmarks&nbsp;&nbsp;<button type="button" class="virt-help" onclick="Game.openAppHelp(typeof Virt !== 'undefined' && (Virt.page === 'virt' || Virt.page === 'guest') ? 'virt' : (Virt.page === 'mon' ? 'mon' : (Virt.page === 'ticket' ? 'tickets' : 'netmoth')))">Help</button></div>
         <div class="virt-loc">
           <span>Location:</span>
           <input id="virt-url" type="text" readonly value="http://tickets.precinct/" spellcheck="false">
         </div>
         <div class="virt-bookmarks">
           <button type="button" onclick="Game.intranetGo('tickets')">tickets.precinct</button>
+          <button type="button" onclick="Game.intranetGo('mon')">mon.precinct</button>
           <button type="button" onclick="Game.intranetGo('virt')">virt.precinct</button>
         </div>
       </div>
@@ -302,9 +304,9 @@ CRIME</pre>
           <div class="objective">
             <div class="objective-kicker">THE DESK</div>
             <div>
-              1. NetMoth → tickets.precinct is today’s work<br>
-              2. A ticket is the case. The slip names the asset<br>
-              3. Open the <b>xterm</b> icon on the desk (not xconsole — that is just the log). The LAN is already up. ssh the asset. Close the ticket to turn it in<br>
+              1. NetMoth → mon.precinct is the board. Red host is the job. tickets.precinct is the paper<br>
+              2. A ticket names the asset. Open <b>xterm</b> (not xconsole). ssh the asset<br>
+              3. Stop it coming back, stop the noise, then Clear on mon.precinct. Close the ticket when it holds<br>
               4. SHIFT CLOSED is the wrap-up. Log off to end the day. Log in tomorrow<br>
               5. Leftovers roll. Hints file on the ticket. xman on the desk is the book for every app. man ls is still the Unix page
             </div>
@@ -425,8 +427,10 @@ CRIME</pre>
   <script src="js/virt.js"></script>
   <script src="js/missions.js"></script>
   <script src="js/jobs.js"></script>
+  <script src="js/mon.js"></script>
   <script src="js/infra.js"></script>
   <script src="js/terminal.js"></script>
+  <script src="js/roc.js"></script>
   <script src="js/story.js"></script>
   <script src="js/game.js"></script>
   <script src="js/windows.js"></script>
